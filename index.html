@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>NY AI Session</title>
+<style>
+  :root {
+    --bg: #05060d;
+    --accent: #6ee7ff;
+    --accent2: #b794f6;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { height: 100%; overflow: hidden; }
+  body {
+    background: var(--bg);
+    font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+    color: #fff;
+  }
+  #net { position: fixed; inset: 0; display: block; z-index: 0; }
+
+  .overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    pointer-events: none;
+    background: radial-gradient(circle at 50% 45%, rgba(110,231,255,0.06), transparent 60%);
+  }
+  .badge {
+    text-transform: uppercase;
+    letter-spacing: 0.45em;
+    font-size: clamp(0.6rem, 1.6vw, 0.9rem);
+    color: var(--accent);
+    margin-bottom: 1.4rem;
+    opacity: 0;
+    animation: rise 1s ease forwards 0.2s;
+  }
+  h1 {
+    font-size: clamp(2.6rem, 9vw, 7rem);
+    font-weight: 800;
+    line-height: 1.02;
+    background: linear-gradient(120deg, #ffffff, var(--accent) 40%, var(--accent2) 75%, #ffffff);
+    background-size: 250% auto;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: shimmer 6s linear infinite, rise 1s ease forwards 0.35s;
+    filter: drop-shadow(0 0 30px rgba(110,231,255,0.25));
+    opacity: 0;
+  }
+  .tagline {
+    margin-top: 1.5rem;
+    font-size: clamp(0.9rem, 2.4vw, 1.25rem);
+    color: rgba(255,255,255,0.7);
+    max-width: 30ch;
+    opacity: 0;
+    animation: rise 1s ease forwards 0.55s;
+  }
+  .pulse-dot {
+    display: inline-block;
+    width: 9px; height: 9px;
+    margin-right: 0.6rem;
+    border-radius: 50%;
+    background: var(--accent);
+    box-shadow: 0 0 12px var(--accent);
+    animation: blink 1.8s ease-in-out infinite;
+    vertical-align: middle;
+  }
+  @keyframes shimmer { to { background-position: 250% center; } }
+  @keyframes rise {
+    from { opacity: 0; transform: translateY(22px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.25; }
+  }
+  .vignette {
+    position: fixed; inset: 0; z-index: 1; pointer-events: none;
+    background: radial-gradient(ellipse at center, transparent 55%, rgba(0,0,0,0.7) 100%);
+  }
+</style>
+</head>
+<body>
+  <canvas id="net"></canvas>
+  <div class="vignette"></div>
+  <div class="overlay">
+    <div class="badge"><span class="pulse-dot"></span>New York</div>
+    <h1>NY AI Session</h1>
+    <p class="tagline">Where neural minds and human ideas converge.</p>
+  </div>
+
+<script>
+(function () {
+  const canvas = document.getElementById('net');
+  const ctx = canvas.getContext('2d');
+  let w, h, nodes, mouse = { x: -9999, y: -9999 };
+  const COLORS = ['#6ee7ff', '#b794f6', '#7af0c4'];
+
+  function resize() {
+    w = canvas.width = window.innerWidth * devicePixelRatio;
+    h = canvas.height = window.innerHeight * devicePixelRatio;
+    canvas.style.width = window.innerWidth + 'px';
+    canvas.style.height = window.innerHeight + 'px';
+    initNodes();
+  }
+
+  function initNodes() {
+    const count = Math.min(140, Math.floor((w * h) / (devicePixelRatio * 14000)));
+    nodes = Array.from({ length: count }, () => ({
+      x: Math.random() * w,
+      y: Math.random() * h,
+      vx: (Math.random() - 0.5) * 0.4 * devicePixelRatio,
+      vy: (Math.random() - 0.5) * 0.4 * devicePixelRatio,
+      r: (Math.random() * 1.6 + 0.6) * devicePixelRatio,
+      c: COLORS[(Math.random() * COLORS.length) | 0]
+    }));
+  }
+
+  function step() {
+    ctx.clearRect(0, 0, w, h);
+    const linkDist = 130 * devicePixelRatio;
+
+    for (let i = 0; i < nodes.length; i++) {
+      const n = nodes[i];
+      n.x += n.vx; n.y += n.vy;
+      if (n.x < 0 || n.x > w) n.vx *= -1;
+      if (n.y < 0 || n.y > h) n.vy *= -1;
+
+      // gentle pull toward mouse
+      const mdx = mouse.x - n.x, mdy = mouse.y - n.y;
+      const md = Math.hypot(mdx, mdy);
+      if (md < 200 * devicePixelRatio && md > 0) {
+        n.x += (mdx / md) * 0.6;
+        n.y += (mdy / md) * 0.6;
+      }
+
+      for (let j = i + 1; j < nodes.length; j++) {
+        const m = nodes[j];
+        const dx = n.x - m.x, dy = n.y - m.y;
+        const d = Math.hypot(dx, dy);
+        if (d < linkDist) {
+          const a = 1 - d / linkDist;
+          ctx.strokeStyle = n.c;
+          ctx.globalAlpha = a * 0.35;
+          ctx.lineWidth = devicePixelRatio * 0.6;
+          ctx.beginPath();
+          ctx.moveTo(n.x, n.y);
+          ctx.lineTo(m.x, m.y);
+          ctx.stroke();
+        }
+      }
+    }
+
+    ctx.globalAlpha = 1;
+    for (const n of nodes) {
+      ctx.beginPath();
+      ctx.fillStyle = n.c;
+      ctx.shadowColor = n.c;
+      ctx.shadowBlur = 8 * devicePixelRatio;
+      ctx.arc(n.x, n.y, n.r, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    ctx.shadowBlur = 0;
+    requestAnimationFrame(step);
+  }
+
+  window.addEventListener('resize', resize);
+  window.addEventListener('mousemove', e => {
+    mouse.x = e.clientX * devicePixelRatio;
+    mouse.y = e.clientY * devicePixelRatio;
+  });
+  window.addEventListener('mouseout', () => { mouse.x = -9999; mouse.y = -9999; });
+
+  resize();
+  step();
+})();
+</script>
+</body>
+</html>
