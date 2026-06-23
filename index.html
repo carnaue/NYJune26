@@ -3,32 +3,43 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>NY AI Session</title>
+<title>NY AI Session · Upsell — What Does Great Look Like?</title>
 <style>
   :root {
     --bg: #05060d;
     --accent: #6ee7ff;
     --accent2: #b794f6;
+    --accent3: #7af0c4;
+    --card: rgba(255,255,255,0.04);
+    --card-border: rgba(110,231,255,0.16);
+    --muted: rgba(255,255,255,0.68);
   }
   * { margin: 0; padding: 0; box-sizing: border-box; }
-  html, body { height: 100%; overflow: hidden; }
+  html { scroll-behavior: smooth; }
   body {
     background: var(--bg);
     font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
     color: #fff;
+    line-height: 1.55;
+    overflow-x: hidden;
   }
   #net { position: fixed; inset: 0; display: block; z-index: 0; }
+  .vignette {
+    position: fixed; inset: 0; z-index: 1; pointer-events: none;
+    background: radial-gradient(ellipse at center, transparent 55%, rgba(0,0,0,0.75) 100%);
+  }
 
-  .overlay {
-    position: fixed;
-    inset: 0;
+  /* ---------- HERO ---------- */
+  .hero {
+    position: relative;
     z-index: 2;
+    min-height: 100vh;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     text-align: center;
-    pointer-events: none;
+    padding: 2rem;
     background: radial-gradient(circle at 50% 45%, rgba(110,231,255,0.06), transparent 60%);
   }
   .badge {
@@ -41,7 +52,7 @@
     animation: rise 1s ease forwards 0.2s;
   }
   h1 {
-    font-size: clamp(2.6rem, 9vw, 7rem);
+    font-size: clamp(2.4rem, 8vw, 6.2rem);
     font-weight: 800;
     line-height: 1.02;
     background: linear-gradient(120deg, #ffffff, var(--accent) 40%, var(--accent2) 75%, #ffffff);
@@ -54,10 +65,10 @@
     opacity: 0;
   }
   .tagline {
-    margin-top: 1.5rem;
-    font-size: clamp(0.9rem, 2.4vw, 1.25rem);
-    color: rgba(255,255,255,0.7);
-    max-width: 30ch;
+    margin-top: 1.4rem;
+    font-size: clamp(0.95rem, 2.4vw, 1.3rem);
+    color: var(--muted);
+    max-width: 40ch;
     opacity: 0;
     animation: rise 1s ease forwards 0.55s;
   }
@@ -71,29 +82,347 @@
     animation: blink 1.8s ease-in-out infinite;
     vertical-align: middle;
   }
+  .scroll-cue {
+    position: absolute;
+    bottom: 2rem;
+    font-size: 0.75rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.5);
+    opacity: 0;
+    animation: rise 1s ease forwards 0.9s, float 2.2s ease-in-out infinite 1.2s;
+    text-decoration: none;
+  }
+
   @keyframes shimmer { to { background-position: 250% center; } }
   @keyframes rise {
     from { opacity: 0; transform: translateY(22px); }
     to   { opacity: 1; transform: translateY(0); }
   }
-  @keyframes blink {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.25; }
+  @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.25; } }
+  @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(8px); } }
+
+  /* ---------- CONTENT ---------- */
+  main { position: relative; z-index: 2; }
+  .wrap { max-width: 1080px; margin: 0 auto; padding: 0 1.5rem; }
+  section { padding: clamp(3rem, 8vw, 6rem) 0; }
+  .section-tag {
+    text-transform: uppercase;
+    letter-spacing: 0.32em;
+    font-size: 0.72rem;
+    color: var(--accent);
+    margin-bottom: 0.9rem;
   }
-  .vignette {
-    position: fixed; inset: 0; z-index: 1; pointer-events: none;
-    background: radial-gradient(ellipse at center, transparent 55%, rgba(0,0,0,0.7) 100%);
+  h2 {
+    font-size: clamp(1.6rem, 4.5vw, 2.6rem);
+    font-weight: 800;
+    line-height: 1.1;
+    margin-bottom: 1.1rem;
+    background: linear-gradient(120deg, #fff, var(--accent3) 90%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
   }
+  h3 { font-size: 1.1rem; font-weight: 700; margin-bottom: 0.5rem; color: #fff; }
+  .lead { color: var(--muted); max-width: 62ch; font-size: clamp(1rem, 2.2vw, 1.15rem); }
+
+  /* flow diagram */
+  .flow {
+    display: flex; flex-wrap: wrap; align-items: center; gap: 0.75rem;
+    margin-top: 2rem;
+  }
+  .flow .node {
+    flex: 1 1 180px;
+    background: var(--card);
+    border: 1px solid var(--card-border);
+    border-radius: 14px;
+    padding: 1rem 1.1rem;
+    backdrop-filter: blur(6px);
+  }
+  .flow .node b { color: var(--accent); display: block; font-size: 0.7rem; letter-spacing: 0.2em; text-transform: uppercase; margin-bottom: 0.3rem; }
+  .flow .arrow { color: var(--accent2); font-size: 1.4rem; flex: 0 0 auto; }
+
+  /* card grid */
+  .grid { display: grid; gap: 1rem; margin-top: 2rem; }
+  .grid.cols-2 { grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); }
+  .grid.cols-3 { grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
+  .card {
+    background: var(--card);
+    border: 1px solid var(--card-border);
+    border-radius: 16px;
+    padding: 1.4rem;
+    backdrop-filter: blur(6px);
+    transition: transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+  }
+  .card:hover {
+    transform: translateY(-4px);
+    border-color: rgba(110,231,255,0.45);
+    box-shadow: 0 12px 40px rgba(110,231,255,0.12);
+  }
+  .card p { color: var(--muted); font-size: 0.95rem; }
+  .card ul { list-style: none; margin-top: 0.4rem; }
+  .card ul li { color: var(--muted); font-size: 0.92rem; padding: 0.18rem 0 0.18rem 1.1rem; position: relative; }
+  .card ul li::before { content: "▸"; color: var(--accent3); position: absolute; left: 0; }
+
+  /* steps */
+  .steps { margin-top: 2rem; display: grid; gap: 0.85rem; }
+  .step {
+    display: flex; gap: 1rem; align-items: flex-start;
+    background: var(--card);
+    border: 1px solid var(--card-border);
+    border-radius: 14px;
+    padding: 1rem 1.2rem;
+  }
+  .step .num {
+    flex: 0 0 auto;
+    width: 34px; height: 34px;
+    border-radius: 50%;
+    display: grid; place-items: center;
+    font-weight: 700; font-size: 0.9rem;
+    color: var(--bg);
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    box-shadow: 0 0 14px rgba(110,231,255,0.35);
+  }
+  .step .body { padding-top: 0.25rem; }
+  .step .body span { color: var(--muted); font-size: 0.9rem; display: block; margin-top: 0.15rem; }
+  .gate {
+    border-color: rgba(183,148,246,0.5);
+    background: rgba(183,148,246,0.07);
+  }
+  .gate .num { background: linear-gradient(135deg, var(--accent2), #f0a6d8); }
+
+  /* example header chip */
+  .example-meta { display: flex; flex-wrap: wrap; gap: 0.6rem; margin-top: 1.2rem; }
+  .chip {
+    font-size: 0.8rem; padding: 0.4rem 0.85rem; border-radius: 999px;
+    border: 1px solid var(--card-border); color: var(--accent);
+    background: rgba(110,231,255,0.06);
+  }
+
+  /* statements */
+  .statements { counter-reset: stmt; margin-top: 2rem; display: grid; gap: 0.8rem; }
+  .statement {
+    position: relative;
+    background: var(--card);
+    border: 1px solid var(--card-border);
+    border-left: 3px solid var(--accent);
+    border-radius: 12px;
+    padding: 1.1rem 1.3rem 1.1rem 1.3rem;
+    color: var(--muted);
+  }
+  .statement strong { color: #fff; }
+
+  .divider { height: 1px; background: linear-gradient(90deg, transparent, var(--card-border), transparent); }
+
+  footer {
+    position: relative; z-index: 2;
+    text-align: center;
+    padding: 3rem 1.5rem 4rem;
+    color: rgba(255,255,255,0.4);
+    font-size: 0.8rem;
+  }
+  footer .badge-line { letter-spacing: 0.3em; text-transform: uppercase; }
 </style>
 </head>
 <body>
   <canvas id="net"></canvas>
   <div class="vignette"></div>
-  <div class="overlay">
-    <div class="badge"><span class="pulse-dot"></span>New York</div>
-    <h1>NY AI Session</h1>
-    <p class="tagline">Where neural minds and human ideas converge.</p>
-  </div>
+
+  <header class="hero">
+    <div class="badge"><span class="pulse-dot"></span>New York · AI Session</div>
+    <h1>What Does<br>Great Look Like?</h1>
+    <p class="tagline">Designing the future state of upsell — where signals, prerequisites, and AI-native plays converge.</p>
+    <a class="scroll-cue" href="#model">Scroll ↓</a>
+  </header>
+
+  <main>
+    <!-- THE MODEL -->
+    <section id="model">
+      <div class="wrap">
+        <div class="section-tag">New Business / Net-New Pipeline Generation</div>
+        <h2>The Model</h2>
+        <p class="lead">
+          Great upsell is <strong>signal-driven and pre-qualified</strong>. A <strong>trigger</strong> fires,
+          the account is checked against a set of <strong>prerequisites</strong>, and only qualified
+          opportunities flow into a repeatable <strong>execution play</strong>. The system continuously
+          watches for signals rather than relying on reps to manually hunt.
+        </p>
+        <div class="flow">
+          <div class="node"><b>Trigger</b>Signal fires</div>
+          <div class="arrow">→</div>
+          <div class="node"><b>Prerequisite</b>Qualify &amp; value check</div>
+          <div class="arrow">→</div>
+          <div class="node"><b>Execution play</b>Run the motion</div>
+          <div class="arrow">→</div>
+          <div class="node"><b>Outcome</b>Close / nurture</div>
+        </div>
+      </div>
+    </section>
+
+    <div class="wrap"><div class="divider"></div></div>
+
+    <!-- TRIGGERS -->
+    <section id="triggers">
+      <div class="wrap">
+        <div class="section-tag">Signals</div>
+        <h2>1 · Triggers</h2>
+        <p class="lead">The signals that start the motion — what the system watches for.</p>
+        <div class="grid cols-2">
+          <div class="card">
+            <h3>Regulatory change</h3>
+            <p>Ecosystem-level shift that creates new client need.</p>
+          </div>
+          <div class="card">
+            <h3>Existing whitespace</h3>
+            <p>Un-penetrated products or seats already available in the account.</p>
+          </div>
+          <div class="card">
+            <h3>New feature</h3>
+            <p>Newly created whitespace from product releases.</p>
+          </div>
+          <div class="card">
+            <h3>Account signals</h3>
+            <p>Account-level behavioral and relationship cues.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="wrap"><div class="divider"></div></div>
+
+    <!-- PREREQUISITES -->
+    <section id="prerequisites">
+      <div class="wrap">
+        <div class="section-tag">Readiness</div>
+        <h2>2 · Prerequisites</h2>
+        <p class="lead">What must be true and in place to qualify the account and run the play.</p>
+        <div class="grid cols-2">
+          <div class="card">
+            <h3>Account health &amp; fit</h3>
+            <ul>
+              <li>Health score</li>
+              <li>Usage</li>
+              <li>Coverage</li>
+              <li>NPS</li>
+              <li>Churn risk</li>
+            </ul>
+          </div>
+          <div class="card">
+            <h3>Delivery readiness</h3>
+            <ul>
+              <li>Self-serve / guided deploy / services capacity</li>
+              <li>Internal expertise</li>
+              <li>Delivery capacity</li>
+              <li>Product catalog &amp; applicability</li>
+            </ul>
+          </div>
+          <div class="card">
+            <h3>Targeting</h3>
+            <ul>
+              <li>SAM → ICP (target audience)</li>
+              <li>Account insights / engagement history</li>
+              <li>Stakeholder map</li>
+            </ul>
+          </div>
+          <div class="card">
+            <h3>GTM assets</h3>
+            <ul>
+              <li>Persona-based messaging (branding / tone)</li>
+              <li>Pricing service (indicative pricing)</li>
+              <li>Upsell marketing materials</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="wrap"><div class="divider"></div></div>
+
+    <!-- EXAMPLE -->
+    <section id="example">
+      <div class="wrap">
+        <div class="section-tag">Worked Example</div>
+        <h2>3 · New-Module Upsell</h2>
+        <p class="lead">Tracing a single opportunity end-to-end through the execution play.</p>
+        <div class="example-meta">
+          <span class="chip">Module: Basel Capital Requirements</span>
+          <span class="chip">Rides on: Reg Reporting</span>
+          <span class="chip">Trigger: Reg change + whitespace</span>
+        </div>
+        <div class="steps">
+          <div class="step">
+            <div class="num">1</div>
+            <div class="body"><h3>Analyze all prerequisites</h3><span>Existing contract, entitlements, fit, etc.</span></div>
+          </div>
+          <div class="step">
+            <div class="num">2</div>
+            <div class="body"><h3>Determine upsell strategy</h3><span>Messaging · targets · tactic / channel</span></div>
+          </div>
+          <div class="step gate">
+            <div class="num">✓</div>
+            <div class="body"><h3>Value check (gate)</h3><span>If multiple accounts qualify, rank them; otherwise continue outreach (loop).</span></div>
+          </div>
+          <div class="step">
+            <div class="num">3</div>
+            <div class="body"><h3>Schedule meeting</h3><span>Including who should attend.</span></div>
+          </div>
+          <div class="step">
+            <div class="num">4</div>
+            <div class="body"><h3>Create sales play</h3><span>Presentation with indicative pricing + script.</span></div>
+          </div>
+          <div class="step">
+            <div class="num">5</div>
+            <div class="body"><h3>Recording</h3><span>Capture the meeting to inform follow-up.</span></div>
+          </div>
+          <div class="step">
+            <div class="num">6</div>
+            <div class="body"><h3>Execute follow-up</h3></div>
+          </div>
+          <div class="step">
+            <div class="num">7</div>
+            <div class="body"><h3>Deal analysis</h3></div>
+          </div>
+          <div class="step">
+            <div class="num">8</div>
+            <div class="body"><h3>Nurturing</h3></div>
+          </div>
+          <div class="step">
+            <div class="num">9</div>
+            <div class="body"><h3>Proposal</h3></div>
+          </div>
+          <div class="step">
+            <div class="num">10</div>
+            <div class="body"><h3>Signing</h3></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="wrap"><div class="divider"></div></div>
+
+    <!-- FUTURE STATE -->
+    <section id="future-state">
+      <div class="wrap">
+        <div class="section-tag">"The model will… / Clients will experience…"</div>
+        <h2>4 · Future-State Statements</h2>
+        <p class="lead">In 2–3 years, what world-class looks like for this motion.</p>
+        <div class="statements">
+          <div class="statement"><strong>The model will</strong> continuously monitor regulatory, product, and account signals to automatically surface upsell opportunities — no manual hunting.</div>
+          <div class="statement"><strong>The model will</strong> auto-qualify each opportunity against health, usage, coverage, fit, and delivery-readiness prerequisites before a seller ever engages.</div>
+          <div class="statement"><strong>The model will</strong> rank and prioritize opportunities across the book when multiple accounts qualify, so effort goes to the highest-value plays first.</div>
+          <div class="statement"><strong>The model will</strong> auto-generate the sales play — targeted messaging, indicative pricing, presentation, and script — tailored to persona and account context.</div>
+          <div class="statement"><strong>Clients will experience</strong> timely, relevant outreach that anticipates needs created by regulatory and ecosystem change (e.g., Basel) rather than generic product pitches.</div>
+          <div class="statement"><strong>Sellers will experience</strong> a guided, repeatable play from trigger to signing, with follow-up and nurturing driven by captured meeting insights.</div>
+          <div class="statement"><strong>Nasdaq will</strong> convert existing whitespace into expansion revenue faster and more predictably, with full traceability from signal to closed deal.</div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="badge-line">NY AI Session · June 2026</div>
+    <p style="margin-top:0.6rem;">Group output — Upsell: What Does Great Look Like?</p>
+  </footer>
 
 <script>
 (function () {
