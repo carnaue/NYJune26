@@ -221,6 +221,15 @@
   .tag-pos { color: var(--accent3); }
   .tag-neg { color: var(--accent2); }
 
+  /* executive summary */
+  .summary-lead { color: var(--muted); max-width: 70ch; font-size: clamp(1.02rem, 2.3vw, 1.22rem); }
+  a.card { text-decoration: none; display: block; }
+  .card .qtag {
+    text-transform: uppercase; letter-spacing: 0.28em; font-size: 0.66rem;
+    color: var(--accent); display: block; margin-bottom: 0.5rem;
+  }
+  .card .more { color: var(--accent); font-size: 0.82rem; display: inline-block; margin-top: 0.7rem; }
+
   .divider { height: 1px; background: linear-gradient(90deg, transparent, var(--card-border), transparent); }
 
   footer {
@@ -241,10 +250,53 @@
     <div class="badge"><span class="pulse-dot"></span>New York · AI Session</div>
     <h1>What Does<br>Great Look Like?</h1>
     <p class="tagline">Designing the future state of upsell — where signals, prerequisites, and AI-native plays converge.</p>
-    <a class="scroll-cue" href="#model">Scroll ↓</a>
+    <a class="scroll-cue" href="#summary">Scroll ↓</a>
   </header>
 
   <main>
+    <!-- EXECUTIVE SUMMARY -->
+    <section id="summary">
+      <div class="wrap">
+        <div class="section-tag">Executive Summary</div>
+        <h2>The Picture at a Glance</h2>
+        <p class="summary-lead">
+          Our work answers four questions about the future of upsell. <strong>Great</strong> means a
+          signal-driven, AI-native motion that surfaces, qualifies, and acts on expansion opportunities
+          automatically — turning installed-base whitespace and regulatory change into predictable revenue.
+          Getting there hinges on data and delivery readiness, a set of new capabilities, and resolving
+          a handful of open questions about automation, ownership, and governance.
+        </p>
+        <div class="grid cols-2">
+          <a class="card" href="#future-state">
+            <span class="qtag">Q1 · What does great look like?</span>
+            <h3>A signal-driven, AI-native motion</h3>
+            <p>The model continuously monitors signals, auto-qualifies and ranks opportunities, and generates the play — so sellers run a guided path from trigger to signing and clients get timely, relevant outreach.</p>
+            <span class="more">See future-state statements →</span>
+          </a>
+          <a class="card" href="#constraints">
+            <span class="qtag">Q2 · Constraints &amp; opportunities</span>
+            <h3>Whitespace upside, data &amp; delivery limits</h3>
+            <p>Reg-driven demand and low-CAC installed-base whitespace are the upside; clean integrated data, delivery capacity, applicability mapping, and protecting the trusted-advisor relationship are the limits.</p>
+            <span class="more">See constraints &amp; opportunities →</span>
+          </a>
+          <a class="card" href="#capabilities">
+            <span class="qtag">Q3 · Capability needs</span>
+            <h3>Signal engine, data layer, automated plays</h3>
+            <p>We need a trigger/signal engine, a unified data layer, opportunity scoring, a product-applicability catalog, automated play and pricing generation, and human-in-the-loop governance.</p>
+            <span class="more">See capability needs →</span>
+          </a>
+          <a class="card" href="#open-questions">
+            <span class="qtag">Q4 · Open questions &amp; tensions</span>
+            <h3>Automation, ownership, governance</h3>
+            <p>Key unknowns: how far to automate before eroding relationships, buy vs. build, data readiness, who owns the motion, compliance sign-off, pricing transparency, and qualification thresholds.</p>
+            <span class="more">See open questions →</span>
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <div class="wrap"><div class="divider"></div></div>
+
     <!-- THE MODEL -->
     <section id="model">
       <div class="wrap">
