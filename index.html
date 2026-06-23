@@ -211,6 +211,15 @@
     color: var(--muted);
   }
   .statement strong { color: #fff; }
+  .statement.tension { border-left-color: var(--accent2); }
+  .statement .q { color: #fff; font-weight: 700; }
+
+  /* labelled lists inside cards (opportunities / constraints) */
+  .card.col-head h3 { display: flex; align-items: center; gap: 0.5rem; }
+  .card .lead-item { display: block; color: #fff; font-weight: 600; }
+  .card ul li .sub { display: block; color: var(--muted); font-weight: 400; font-size: 0.86rem; padding-top: 0.1rem; }
+  .tag-pos { color: var(--accent3); }
+  .tag-neg { color: var(--accent2); }
 
   .divider { height: 1px; background: linear-gradient(90deg, transparent, var(--card-border), transparent); }
 
@@ -414,6 +423,80 @@
           <div class="statement"><strong>Clients will experience</strong> timely, relevant outreach that anticipates needs created by regulatory and ecosystem change (e.g., Basel) rather than generic product pitches.</div>
           <div class="statement"><strong>Sellers will experience</strong> a guided, repeatable play from trigger to signing, with follow-up and nurturing driven by captured meeting insights.</div>
           <div class="statement"><strong>Nasdaq will</strong> convert existing whitespace into expansion revenue faster and more predictably, with full traceability from signal to closed deal.</div>
+        </div>
+      </div>
+    </section>
+
+    <div class="wrap"><div class="divider"></div></div>
+
+    <!-- CONSTRAINTS & OPPORTUNITIES -->
+    <section id="constraints">
+      <div class="wrap">
+        <div class="section-tag">Reality Check</div>
+        <h2>5 · Key Constraints &amp; Opportunities</h2>
+        <p class="lead">What stands in the way — and what's working in our favor — on the path to this future state.</p>
+        <div class="grid cols-2">
+          <div class="card col-head">
+            <h3><span class="tag-pos">▲</span> Opportunities</h3>
+            <ul>
+              <li><span class="lead-item">Reg-driven demand</span><span class="sub">Regulatory change (e.g., Basel) is a high-confidence, repeatable trigger mapped to our Reg Reporting footprint — a built-in reason to buy now.</span></li>
+              <li><span class="lead-item">Installed-base whitespace</span><span class="sub">Expansion into existing accounts is lower-CAC than net-new; whitespace and new features create ready-made upsell paths.</span></li>
+              <li><span class="lead-item">AI-native leverage</span><span class="sub">Messaging, presentations, indicative pricing, and scripts can be auto-generated, collapsing time from signal to outreach.</span></li>
+              <li><span class="lead-item">Cross-account prioritization</span><span class="sub">Ranking qualified accounts focuses effort on the highest-value plays first.</span></li>
+            </ul>
+          </div>
+          <div class="card col-head">
+            <h3><span class="tag-neg">▼</span> Constraints</h3>
+            <ul>
+              <li><span class="lead-item">Signal / data availability</span><span class="sub">Triggers depend on clean, integrated data across reg feeds, product usage, CRM, contracts, and entitlements.</span></li>
+              <li><span class="lead-item">Delivery capacity</span><span class="sub">A booked upsell still needs services capacity to fulfill — selling ahead of delivery erodes the win.</span></li>
+              <li><span class="lead-item">Product applicability mapping</span><span class="sub">Need a structured catalog that maps which modules fit which account profile.</span></li>
+              <li><span class="lead-item">Relationship integrity</span><span class="sub">Over-automated outreach risks eroding the trusted-advisor relationship.</span></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="wrap"><div class="divider"></div></div>
+
+    <!-- CAPABILITY NEEDS -->
+    <section id="capabilities">
+      <div class="wrap">
+        <div class="section-tag">Build · Buy · Stand Up</div>
+        <h2>6 · Capability Needs</h2>
+        <p class="lead">What we need in place to operate this model.</p>
+        <div class="grid cols-3">
+          <div class="card"><h3>Signal / trigger engine</h3><p>Monitors regulatory feeds, product usage, new-feature releases, and account signals; fires qualified triggers.</p></div>
+          <div class="card"><h3>Unified data layer</h3><p>CRM + contracts + entitlements + usage in one place, so prerequisites can be auto-checked.</p></div>
+          <div class="card"><h3>Opportunity scoring &amp; ranking</h3><p>The "value check" as a model: thresholds that qualify an account and rank across the book.</p></div>
+          <div class="card"><h3>Product catalog &amp; applicability</h3><p>Structured mapping of which module fits which account profile.</p></div>
+          <div class="card"><h3>Automated play generation</h3><p>Messaging, presentation, script, and indicative pricing tailored to persona and account.</p></div>
+          <div class="card"><h3>Pricing service</h3><p>Indicative pricing surfaced safely, without undercutting negotiation.</p></div>
+          <div class="card"><h3>Capture → follow-up</h3><p>Meeting recording feeds the next action automatically.</p></div>
+          <div class="card"><h3>Account intelligence</h3><p>Stakeholder maps, engagement history, and account insights.</p></div>
+          <div class="card"><h3>Governance / human-in-the-loop</h3><p>Compliance review for AI-generated, reg-related outreach.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <div class="wrap"><div class="divider"></div></div>
+
+    <!-- OPEN QUESTIONS & TENSIONS -->
+    <section id="open-questions">
+      <div class="wrap">
+        <div class="section-tag">To Resolve</div>
+        <h2>7 · Open Questions &amp; Tensions</h2>
+        <p class="lead">What we still need to work through.</p>
+        <div class="statements">
+          <div class="statement tension"><span class="q">Automation vs. relationship</span> — how much of the motion can be AI-driven before it erodes the trusted-advisor relationship?</div>
+          <div class="statement tension"><span class="q">Buy vs. build</span> — do we build the signal engine and data layer, or buy?</div>
+          <div class="statement tension"><span class="q">Data readiness</span> — is our contract / entitlement / usage data clean enough to auto-qualify accounts today?</div>
+          <div class="statement tension"><span class="q">Motion ownership</span> — who runs this: CS, Sales, or a dedicated expansion team?</div>
+          <div class="statement tension"><span class="q">Compliance exposure</span> — reg-themed outreach (e.g., Basel) needs a review path; who signs off?</div>
+          <div class="statement tension"><span class="q">Pricing transparency</span> — how much indicative pricing do we expose before it weakens our negotiating position?</div>
+          <div class="statement tension"><span class="q">Qualification thresholds</span> — what concretely defines a "qualified" opportunity at the value-check gate?</div>
+          <div class="statement tension"><span class="q">Prioritization</span> — when capacity is limited, do we favor new-module cross-sell or deepening existing footprint?</div>
         </div>
       </div>
     </section>
