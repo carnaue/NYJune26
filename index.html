@@ -82,6 +82,22 @@
     animation: blink 1.8s ease-in-out infinite;
     vertical-align: middle;
   }
+  .hero-cta {
+    display: inline-block;
+    margin-top: 2rem;
+    padding: 0.85rem 1.6rem;
+    border-radius: 999px;
+    font-size: clamp(0.85rem, 2vw, 1rem);
+    font-weight: 600;
+    color: var(--bg);
+    text-decoration: none;
+    background: linear-gradient(120deg, var(--accent), var(--accent2));
+    box-shadow: 0 8px 30px rgba(110,231,255,0.3);
+    opacity: 0;
+    animation: rise 1s ease forwards 0.75s;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+  .hero-cta:hover { transform: translateY(-2px); box-shadow: 0 12px 40px rgba(110,231,255,0.45); }
   .scroll-cue {
     position: absolute;
     bottom: 2rem;
@@ -126,6 +142,8 @@
     transition: color 0.2s ease, background 0.2s ease;
   }
   .navlinks a:hover { color: #fff; background: rgba(110,231,255,0.1); }
+  .navlinks a.nav-cta { color: var(--bg); background: var(--accent); font-weight: 600; }
+  .navlinks a.nav-cta:hover { background: var(--accent3); }
   .nav-toggle { display: none; }
   @media (max-width: 820px) {
     .navlinks {
@@ -300,6 +318,7 @@
       <a href="#constraints">Constraints</a>
       <a href="#capabilities">Capabilities</a>
       <a href="#open-questions">Open Questions</a>
+      <a href="event-targeting.html" class="nav-cta">Event Targeting ↗</a>
     </div>
   </nav>
 
@@ -307,6 +326,7 @@
     <div class="badge"><span class="pulse-dot"></span>New York · AI Session</div>
     <h1>What Does<br>Great Look Like?</h1>
     <p class="tagline">Designing the future state of upsell — where signals, prerequisites, and AI-native plays converge.</p>
+    <a class="hero-cta" href="event-targeting.html">Open the Event Targeting demo →</a>
     <a class="scroll-cue" href="#summary">Scroll ↓</a>
   </header>
 
