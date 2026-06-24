@@ -67,9 +67,22 @@
     background: linear-gradient(120deg, #fff, var(--accent) 60%, var(--accent2));
     -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
   }
-  .event-bar {
-    display: flex; flex-wrap: wrap; gap: 0.7rem; align-items: center; margin-top: 1rem;
+
+  /* event selector */
+  .event-select { display: flex; flex-wrap: wrap; gap: 0.6rem; margin-top: 1.1rem; }
+  .ev-btn {
+    cursor: pointer; text-align: left;
+    background: var(--card); border: 1px solid var(--card-border);
+    border-radius: 14px; padding: 0.7rem 1.1rem; color: #fff;
+    transition: border-color 0.2s ease, background 0.2s ease;
   }
+  .ev-btn:hover { border-color: rgba(110,231,255,0.4); }
+  .ev-btn.active { border-color: var(--accent); background: rgba(110,231,255,0.1); }
+  .ev-btn .en { font-weight: 700; font-size: 0.95rem; display: block; }
+  .ev-btn .em { font-size: 0.74rem; color: var(--muted2); margin-top: 0.15rem; }
+  .ev-btn .em b { color: var(--accent3); }
+
+  .event-bar { display: flex; flex-wrap: wrap; gap: 0.7rem; align-items: center; margin-top: 1rem; }
   .event-pill {
     display: inline-flex; align-items: center; gap: 0.5rem;
     background: var(--card); border: 1px solid var(--card-border);
@@ -111,8 +124,13 @@
   .rank { font-size: 0.8rem; color: var(--muted2); width: 1.4rem; text-align: center; font-weight: 700; }
   .avatar {
     width: 42px; height: 42px; border-radius: 50%; display: grid; place-items: center;
-    font-weight: 700; font-size: 0.95rem; color: #05060d; flex: 0 0 auto;
+    font-weight: 700; font-size: 0.95rem; color: #05060d; flex: 0 0 auto; position: relative;
   }
+  .avatar .mood {
+    position: absolute; bottom: -2px; right: -2px; width: 16px; height: 16px; border-radius: 50%;
+    border: 2px solid var(--bg); font-size: 9px; display: grid; place-items: center;
+  }
+  .mood.happy { background: var(--accent3); } .mood.neutral { background: #9aa6c4; } .mood.risk { background: var(--warn); }
   .row .who { min-width: 0; }
   .row .who .nm { font-weight: 600; font-size: 0.95rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .row .who .co { font-size: 0.8rem; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -142,7 +160,9 @@
   }
   .badge.cust { color: var(--accent3); border-color: rgba(122,240,196,0.4); background: rgba(122,240,196,0.08); }
   .badge.prospect { color: var(--accent2); border-color: rgba(183,148,246,0.4); background: rgba(183,148,246,0.08); }
-  .badge.score { color: #05060d; font-weight: 700; }
+  .badge.happy { color: var(--accent3); border-color: rgba(122,240,196,0.4); }
+  .badge.neutral { color: #aeb7d0; }
+  .badge.risk { color: var(--warn); border-color: rgba(240,166,216,0.4); background: rgba(240,166,216,0.08); }
 
   .dscore { margin-left: auto; text-align: center; }
   .dscore .num { font-size: 2.4rem; font-weight: 800; line-height: 1; }
@@ -159,6 +179,7 @@
     font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.2em;
     color: var(--accent); margin-bottom: 0.7rem;
   }
+  .block h3.sub { margin-top: 1rem; }
   .block p { color: var(--muted); font-size: 0.92rem; }
   .kv { display: grid; grid-template-columns: auto 1fr; gap: 0.3rem 0.9rem; font-size: 0.9rem; }
   .kv dt { color: var(--muted2); }
@@ -174,8 +195,18 @@
     border: 1px solid rgba(110,231,255,0.3);
   }
   .pitch p { color: #fff; font-style: italic; }
-  .signals li { list-style: none; padding: 0.3rem 0 0.3rem 1.3rem; position: relative; color: var(--muted); font-size: 0.9rem; }
+  .signals li, .talk li { list-style: none; padding: 0.3rem 0 0.3rem 1.3rem; position: relative; color: var(--muted); font-size: 0.9rem; }
   .signals li::before { content: "▸"; color: var(--accent3); position: absolute; left: 0; }
+  .talk li::before { content: "💬"; position: absolute; left: 0; font-size: 0.8rem; }
+
+  /* SF history timeline */
+  .timeline { position: relative; padding-left: 1rem; }
+  .timeline::before { content: ""; position: absolute; left: 3px; top: 4px; bottom: 4px; width: 2px; background: rgba(110,231,255,0.25); }
+  .ti { position: relative; padding: 0 0 0.8rem 0.8rem; }
+  .ti:last-child { padding-bottom: 0; }
+  .ti::before { content: ""; position: absolute; left: -1px; top: 5px; width: 8px; height: 8px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 8px var(--accent); }
+  .ti .td { font-size: 0.72rem; color: var(--muted2); }
+  .ti .tn { font-size: 0.88rem; color: #fff; }
 
   .empty { display: grid; place-items: center; height: 50vh; color: var(--muted2); text-align: center; }
   .disclaimer { margin-top: 1.5rem; font-size: 0.72rem; color: var(--muted2); text-align: center; }
@@ -197,16 +228,18 @@
     <div class="page-head">
       <div class="tag">Sales Intelligence · Mockup</div>
       <h1>Event Targeting</h1>
+
+      <div class="event-select" id="eventSelect"></div>
+
       <div class="event-bar">
         <span class="event-pill live">Live event</span>
-        <span class="event-pill">Event: <b>SIBOS 2026</b></span>
-        <span class="event-pill">Attendees: <b>3,000+</b></span>
-        <span class="event-pill">Your ranked targets: <b id="tcount">8</b></span>
+        <span class="event-pill" id="pillEvent">Event: <b>—</b></span>
+        <span class="event-pill" id="pillAtt">Attendees: <b>—</b></span>
+        <span class="event-pill">Your ranked targets: <b id="tcount">0</b></span>
       </div>
     </div>
 
     <div class="grid2">
-      <!-- LIST -->
       <div class="panel">
         <div class="list-head">
           <h2>Prioritised Targets</h2>
@@ -215,173 +248,242 @@
         <div class="target-list" id="list"></div>
       </div>
 
-      <!-- DETAIL -->
       <div class="panel detail" id="detail">
         <div class="empty">Select a target from the list to see their brief.</div>
       </div>
     </div>
 
-    <p class="disclaimer">Mockup — all people, companies, scores, and news shown are fictional sample data for demonstration only.</p>
+    <p class="disclaimer">Mockup — all people, companies, scores, news, and CRM history shown are fictional sample data for demonstration only.</p>
   </main>
 
 <script>
+const EVENTS = {
+  sibos:   { name: "SIBOS 2026", location: "Frankfurt", attendees: "3,000+" },
+  calypso: { name: "Calypso User Conference", location: "New York", attendees: "250" }
+};
+
 const TARGETS = [
   {
-    name: "Priya Nair", initials: "PN", score: 94, tier: "hot",
+    name: "Priya Nair", initials: "PN", score: 94, tier: "hot", event: "sibos", mood: "happy",
     title: "Head of Treasury Technology", company: "Meridian Global Bank",
-    status: "customer", segment: "Tier 1 Bank", assets: "$1.4T total assets",
-    region: "London, UK", employees: "78,000",
-    products: ["Calypso", "Reg Reporting"],
-    assetClasses: ["Rates", "FX", "Credit"],
+    status: "customer", sentiment: "Happy — healthy account, strong usage",
+    productOwner: "Yes — owns the Calypso platform decision & renewal budget",
+    segment: "Tier 1 Bank", assets: "$1.4T total assets", region: "London, UK", employees: "78,000",
+    products: ["Calypso", "Reg Reporting"], assetClasses: ["Rates", "FX", "Credit"],
     brief: "Owns the treasury tech roadmap for one of Europe's largest banks and a long-standing Calypso customer. Actively modernising collateral and liquidity systems — strong fit for a new-module conversation.",
     company_brief: "Global universal bank; top-5 in European rates clearing. Mid-cycle on a multi-year tech transformation.",
     signals: ["Renewal due Q3 — expansion window open", "Whitespace: collateral optimisation module", "Attended our Calypso roadmap webinar last month"],
+    talk: ["Their £200m modernisation programme and where Calypso fits", "Collateral optimisation module — funding-cost savings", "Q3 renewal: bundle expansion into the renewal"],
+    opportunities: "Collateral optimisation + intraday liquidity module on existing Calypso footprint.",
     news: [
       { t: "Meridian announces £200m tech modernisation programme", m: "FinTech Times · 3 days ago" },
       { t: "New Group CRO appointed, prioritising risk-data consolidation", m: "Reuters · 2 weeks ago" }
     ],
-    opportunities: "Collateral optimisation + intraday liquidity module on existing Calypso footprint.",
+    sfHistory: [
+      { d: "Apr 2026", n: "QBR — flagged interest in collateral optimisation" },
+      { d: "Feb 2026", n: "Renewed Reg Reporting (2-yr); NPS 9" },
+      { d: "Nov 2025", n: "Calypso platform upgrade completed" }
+    ],
     pitch: "Priya — congrats on the £200m modernisation programme. Teams running your Calypso footprint are adding the collateral optimisation module to cut funding costs ~15%. Worth 15 minutes while you're scoping the roadmap?"
   },
   {
-    name: "Marcus Lindqvist", initials: "ML", score: 89, tier: "hot",
-    title: "Chief Operating Officer", company: "Nordström Asset Management",
-    status: "prospect", segment: "Asset Manager", assets: "$320B AUM",
-    region: "Stockholm, SE", employees: "1,200",
-    products: [],
-    assetClasses: ["Equities", "Fixed Income"],
-    brief: "COO at a fast-growing Nordic asset manager with no current relationship. Public comments suggest frustration with fragmented post-trade systems — a clean greenfield prospect.",
-    company_brief: "Top-3 Nordic asset manager, expanding into private credit. Known for early tech adoption.",
-    signals: ["Net-new logo — no existing footprint", "Public RFP signals for an OMS/risk platform", "Two of his directors are also attending SIBOS"],
-    news: [
-      { t: "Nordström launches $5B private credit fund", m: "Bloomberg · 1 week ago" },
-      { t: "COO cites 'operational scaling' as 2026 priority in earnings call", m: "Investor call · 1 month ago" }
-    ],
-    opportunities: "Greenfield Calypso platform for cross-asset risk + post-trade consolidation.",
-    pitch: "Marcus — saw the private credit launch. As you scale into less-liquid assets, a single cross-asset risk and post-trade layer avoids the fragmentation you flagged. Can I show you how peers structure that?"
-  },
-  {
-    name: "Sofia Reyes", initials: "SR", score: 87, tier: "hot",
+    name: "Sofia Reyes", initials: "SR", score: 87, tier: "hot", event: "sibos", mood: "happy",
     title: "Director, Regulatory Reporting", company: "Banco Atlántico",
-    status: "customer", segment: "Tier 2 Bank", assets: "$280B total assets",
-    region: "Madrid, ES", employees: "24,000",
-    products: ["Reg Reporting"],
-    assetClasses: ["Rates", "Credit"],
+    status: "customer", sentiment: "Happy — engaged, opens our comms",
+    productOwner: "Yes — owns Reg Reporting & holds the compliance-tech budget",
+    segment: "Tier 2 Bank", assets: "$280B total assets", region: "Madrid, ES", employees: "24,000",
+    products: ["Reg Reporting"], assetClasses: ["Rates", "Credit"],
     brief: "Reg Reporting customer facing a wave of new Basel capital requirements. High-confidence upsell trigger — the new module maps directly to a regulatory deadline she owns.",
     company_brief: "Spanish commercial bank with growing LatAm operations and rising cross-border reporting obligations.",
     signals: ["TRIGGER: Basel capital requirements (uses Reg Reporting)", "Compliance deadline in 9 months", "Opened our last 3 product emails"],
+    talk: ["Basel III endgame timeline & her 9-month deadline", "Capital Requirements module — plugs into existing setup", "LatAm cross-border reporting expansion"],
+    opportunities: "Basel Capital Requirements module as an add-on to existing Reg Reporting.",
     news: [
       { t: "EU finalises Basel III endgame timeline", m: "Regulatory Brief · 5 days ago" },
       { t: "Banco Atlántico expands Mexico City operations", m: "Financial Times · 3 weeks ago" }
     ],
-    opportunities: "Basel Capital Requirements module as an add-on to existing Reg Reporting.",
+    sfHistory: [
+      { d: "May 2026", n: "Downloaded Basel module one-pager from portal" },
+      { d: "Mar 2026", n: "Support case resolved — CSAT 5/5" },
+      { d: "Jan 2026", n: "Onboarded LatAm reporting entities" }
+    ],
     pitch: "Sofia — with the Basel endgame timeline now fixed, our Capital Requirements module plugs straight into your Reg Reporting setup, so you hit the deadline without a new integration. Shall we map it to your milestones?"
   },
   {
-    name: "James Okafor", initials: "JO", score: 82, tier: "warm",
+    name: "James Okafor", initials: "JO", score: 82, tier: "warm", event: "sibos", mood: "neutral",
     title: "Head of Markets Risk", company: "Cardinal Securities",
-    status: "prospect", segment: "Broker-Dealer", assets: "$95B balance sheet",
-    region: "New York, US", employees: "6,500",
-    products: [],
-    assetClasses: ["Equities", "Derivatives"],
+    status: "prospect", sentiment: "Neutral — active pain, no relationship yet",
+    productOwner: "Owns the risk-platform decision; CTO co-signs budget",
+    segment: "Broker-Dealer", assets: "$95B balance sheet", region: "New York, US", employees: "6,500",
+    products: [], assetClasses: ["Equities", "Derivatives"],
     brief: "Runs markets risk at a mid-size US broker-dealer. Evaluating real-time risk platforms after a volatility event last quarter. Warm prospect with an active pain point.",
     company_brief: "US broker-dealer with a strong equity derivatives franchise; investing in risk infrastructure post-incident.",
-    signals: ["Active evaluation of real-time risk tooling", "Recent margin-call incident reported in press", "Connected to two of our existing champions on LinkedIn"],
+    signals: ["Active evaluation of real-time risk tooling", "Recent margin-call incident reported in press", "Connected to two of our champions on LinkedIn"],
+    talk: ["Q1 volatility losses & control gaps", "Real-time vs. overnight-batch risk", "Intro via mutual contacts at peer firms"],
+    opportunities: "Real-time cross-asset risk engine; potential displacement of legacy in-house system.",
     news: [
       { t: "Cardinal reviews risk controls after Q1 volatility losses", m: "WSJ · 2 weeks ago" },
       { t: "New Head of Technology hired from a Tier 1 bank", m: "eFinancialCareers · 1 month ago" }
     ],
-    opportunities: "Real-time cross-asset risk engine; potential displacement of legacy in-house system.",
+    sfHistory: [
+      { d: "Jun 2026", n: "Inbound: requested a risk-platform demo" },
+      { d: "—", n: "No prior account history (net-new prospect)" }
+    ],
     pitch: "James — after Q1, real-time intraday risk is clearly top of mind. Firms your size are replacing overnight batch with our streaming risk engine to catch exposures before they become margin calls. Worth a look?"
   },
   {
-    name: "Yuki Tanaka", initials: "YT", score: 78, tier: "warm",
-    title: "Chief Technology Officer", company: "Sakura Capital Partners",
-    status: "customer", segment: "Asset Manager", assets: "$140B AUM",
-    region: "Tokyo, JP", employees: "900",
-    products: ["Calypso"],
-    assetClasses: ["Fixed Income", "FX"],
-    brief: "CTO and Calypso customer in APAC. Healthy account with strong usage; good candidate for cross-sell into reg reporting as Japanese disclosure rules tighten.",
-    company_brief: "Japanese asset manager expanding global fixed-income mandates; modern, cloud-first tech stack.",
-    signals: ["High product usage / healthy account", "Whitespace: reg reporting (not yet a customer)", "Upcoming APAC disclosure rule changes"],
-    news: [
-      { t: "Japan FSA tightens derivatives disclosure rules", m: "Nikkei · 1 week ago" },
-      { t: "Sakura wins $12B global bond mandate", m: "Asian Investor · 1 month ago" }
-    ],
-    opportunities: "Cross-sell Reg Reporting onto existing Calypso footprint ahead of FSA changes.",
-    pitch: "Yuki-san — with the new FSA disclosure rules landing, adding our Reg Reporting onto your existing Calypso setup keeps it all in one stack. Could I walk your team through the APAC coverage?"
-  },
-  {
-    name: "Elena Volkov", initials: "EV", score: 74, tier: "warm",
+    name: "Elena Volkov", initials: "EV", score: 74, tier: "warm", event: "sibos", mood: "neutral",
     title: "VP, Collateral Management", company: "Helvetia Custody",
-    status: "prospect", segment: "Custodian", assets: "$2.1T assets under custody",
-    region: "Zurich, CH", employees: "11,000",
-    products: [],
-    assetClasses: ["Collateral", "Securities Lending"],
+    status: "prospect", sentiment: "Neutral — early stage, exploratory",
+    productOwner: "Influencer — procurement gated via Group COO",
+    segment: "Custodian", assets: "$2.1T assets under custody", region: "Zurich, CH", employees: "11,000",
+    products: [], assetClasses: ["Collateral", "Securities Lending"],
     brief: "Leads collateral management at a major custodian. Prospect with a clear efficiency mandate; collateral optimisation is a natural entry point.",
     company_brief: "Swiss custodian and securities-services provider; conservative buyer, long sales cycles, high lifetime value.",
     signals: ["Efficiency / cost-reduction mandate", "Whitespace: collateral optimisation", "First touch — early-stage relationship"],
+    talk: ["T+1 settlement pressure on collateral ops", "Optimisation wins peers are seeing", "Who else to involve (Group COO)"],
+    opportunities: "Collateral optimisation platform; long-cycle but high-value custodian deal.",
     news: [
       { t: "Helvetia consolidates securities-services division", m: "Finews · 2 weeks ago" },
       { t: "Industry shift to T+1 settlement pressures collateral ops", m: "Global Custodian · 1 month ago" }
     ],
-    opportunities: "Collateral optimisation platform; long-cycle but high-value custodian deal.",
+    sfHistory: [
+      { d: "—", n: "No prior account history (first touch at this event)" }
+    ],
     pitch: "Elena — with T+1 squeezing collateral timelines, optimisation is where custodians are finding the biggest efficiency wins. I'd value 15 minutes to understand your current workflow and share what peers are doing."
   },
   {
-    name: "David Chen", initials: "DC", score: 70, tier: "warm",
-    title: "Head of Trading Operations", company: "Pacific Union Bank",
-    status: "customer", segment: "Tier 2 Bank", assets: "$190B total assets",
-    region: "Singapore, SG", employees: "15,000",
-    products: ["Calypso", "Reg Reporting"],
-    assetClasses: ["FX", "Rates"],
-    brief: "Multi-product customer (Calypso + Reg Reporting). Account is stable; opportunity is depth — additional asset-class coverage and seats rather than new modules.",
-    company_brief: "Pan-Asian bank with a strong FX franchise; steady, relationship-driven buyer.",
-    signals: ["Existing multi-product customer", "Expansion: add commodities asset-class coverage", "NPS strong — good reference candidate"],
-    news: [
-      { t: "Pacific Union grows commodities trading desk", m: "Straits Times · 2 weeks ago" },
-      { t: "Bank reports record FX volumes in Q1", m: "Reuters · 1 month ago" }
-    ],
-    opportunities: "Add commodities coverage + additional desk seats on existing Calypso.",
-    pitch: "David — congrats on the commodities desk build-out. We can extend your existing Calypso setup to cover commodities so the new desk runs on day one. Want me to scope the seats with your team?"
-  },
-  {
-    name: "Aisha Rahman", initials: "AR", score: 66, tier: "cool",
+    name: "Aisha Rahman", initials: "AR", score: 66, tier: "cool", event: "sibos", mood: "neutral",
     title: "Chief Data Officer", company: "Gulf Investment Authority",
-    status: "prospect", segment: "Sovereign Wealth Fund", assets: "$650B AUM",
-    region: "Abu Dhabi, AE", employees: "1,800",
-    products: [],
-    assetClasses: ["Multi-asset", "Private Markets"],
+    status: "prospect", sentiment: "Neutral — relationship-building priority",
+    productOwner: "Influencer — data strategy owner, not the direct buyer",
+    segment: "Sovereign Wealth Fund", assets: "$650B AUM", region: "Abu Dhabi, AE", employees: "1,800",
+    products: [], assetClasses: ["Multi-asset", "Private Markets"],
     brief: "CDO at a sovereign wealth fund. Early-stage prospect — relationship-building priority. Long horizon, but a marquee logo with significant whitespace.",
     company_brief: "Sovereign wealth fund diversifying into private markets and alternatives; data-governance focused.",
     signals: ["Marquee logo — strategic relationship", "Early stage — nurture, not pitch", "Data-consolidation initiative underway"],
+    talk: ["Their $40B private-markets push", "Multi-asset risk data for illiquids", "Keep it relationship-first — no hard pitch"],
+    opportunities: "Long-horizon multi-asset risk & data platform; relationship-led nurture.",
     news: [
       { t: "GIA commits $40B to private markets over 5 years", m: "Bloomberg · 1 week ago" },
       { t: "Fund builds out in-house data platform", m: "Sovereign Wealth News · 1 month ago" }
     ],
-    opportunities: "Long-horizon multi-asset risk & data platform; relationship-led nurture.",
+    sfHistory: [
+      { d: "Mar 2026", n: "Met at industry roundtable — exchanged cards" },
+      { d: "—", n: "No active opportunity (nurture stage)" }
+    ],
     pitch: "Aisha — I'd love to simply connect at SIBOS, no pitch. As you build out the data platform and push into private markets, I can share how other large allocators approach multi-asset risk data. Coffee while you're here?"
+  },
+  {
+    name: "Yuki Tanaka", initials: "YT", score: 91, tier: "hot", event: "calypso", mood: "happy",
+    title: "Chief Technology Officer", company: "Sakura Capital Partners",
+    status: "customer", sentiment: "Happy — power user, vocal advocate",
+    productOwner: "Yes — owns the tech stack; final decision maker",
+    segment: "Asset Manager", assets: "$140B AUM", region: "Tokyo, JP", employees: "900",
+    products: ["Calypso"], assetClasses: ["Fixed Income", "FX"],
+    brief: "CTO and Calypso customer in APAC. Healthy account with strong usage; good candidate for cross-sell into reg reporting as Japanese disclosure rules tighten.",
+    company_brief: "Japanese asset manager expanding global fixed-income mandates; modern, cloud-first tech stack.",
+    signals: ["High product usage / healthy account", "Whitespace: reg reporting (not yet a customer)", "Upcoming APAC disclosure rule changes"],
+    talk: ["New FSA disclosure rules & a Reg Reporting cross-sell", "His $12B global bond mandate win", "Reference/advocacy opportunity"],
+    opportunities: "Cross-sell Reg Reporting onto existing Calypso footprint ahead of FSA changes.",
+    news: [
+      { t: "Japan FSA tightens derivatives disclosure rules", m: "Nikkei · 1 week ago" },
+      { t: "Sakura wins $12B global bond mandate", m: "Asian Investor · 1 month ago" }
+    ],
+    sfHistory: [
+      { d: "May 2026", n: "Spoke on our customer panel (advocate)" },
+      { d: "Feb 2026", n: "Calypso usage up 30% YoY" },
+      { d: "Oct 2025", n: "Expanded to 2 additional desks" }
+    ],
+    pitch: "Yuki-san — with the new FSA disclosure rules landing, adding our Reg Reporting onto your existing Calypso setup keeps it all in one stack. Could I walk your team through the APAC coverage?"
+  },
+  {
+    name: "David Chen", initials: "DC", score: 79, tier: "warm", event: "calypso", mood: "happy",
+    title: "Head of Trading Operations", company: "Pacific Union Bank",
+    status: "customer", sentiment: "Happy — stable, strong NPS",
+    productOwner: "Co-owns the platform decision with the CTO",
+    segment: "Tier 2 Bank", assets: "$190B total assets", region: "Singapore, SG", employees: "15,000",
+    products: ["Calypso", "Reg Reporting"], assetClasses: ["FX", "Rates"],
+    brief: "Multi-product customer (Calypso + Reg Reporting). Account is stable; opportunity is depth — additional asset-class coverage and seats rather than new modules.",
+    company_brief: "Pan-Asian bank with a strong FX franchise; steady, relationship-driven buyer.",
+    signals: ["Existing multi-product customer", "Expansion: add commodities asset-class coverage", "NPS strong — good reference candidate"],
+    talk: ["New commodities desk & asset-class coverage", "Additional desk seats on Calypso", "Acting as a reference for peers"],
+    opportunities: "Add commodities coverage + additional desk seats on existing Calypso.",
+    news: [
+      { t: "Pacific Union grows commodities trading desk", m: "Straits Times · 2 weeks ago" },
+      { t: "Bank reports record FX volumes in Q1", m: "Reuters · 1 month ago" }
+    ],
+    sfHistory: [
+      { d: "Apr 2026", n: "Expansion call — discussed commodities coverage" },
+      { d: "Dec 2025", n: "Reg Reporting go-live; NPS 8" },
+      { d: "Jul 2025", n: "Added FX desk seats" }
+    ],
+    pitch: "David — congrats on the commodities desk build-out. We can extend your existing Calypso setup to cover commodities so the new desk runs on day one. Want me to scope the seats with your team?"
+  },
+  {
+    name: "Marcus Lindqvist", initials: "ML", score: 85, tier: "hot", event: "calypso", mood: "neutral",
+    title: "Chief Operating Officer", company: "Nordström Asset Management",
+    status: "prospect", sentiment: "Neutral — evaluating, attending to learn",
+    productOwner: "Economic buyer — owns platform selection",
+    segment: "Asset Manager", assets: "$320B AUM", region: "Stockholm, SE", employees: "1,200",
+    products: [], assetClasses: ["Equities", "Fixed Income"],
+    brief: "COO at a fast-growing Nordic asset manager with no current relationship. Public comments suggest frustration with fragmented post-trade systems — a clean greenfield prospect attending to evaluate Calypso.",
+    company_brief: "Top-3 Nordic asset manager, expanding into private credit. Known for early tech adoption.",
+    signals: ["Net-new logo — no existing footprint", "Public RFP signals for an OMS/risk platform", "Two of his directors are also attending"],
+    talk: ["His private-credit launch & operational scaling", "Greenfield cross-asset platform vs. fragmentation", "Bring his two directors into the conversation"],
+    opportunities: "Greenfield Calypso platform for cross-asset risk + post-trade consolidation.",
+    news: [
+      { t: "Nordström launches $5B private credit fund", m: "Bloomberg · 1 week ago" },
+      { t: "COO cites 'operational scaling' as 2026 priority in earnings call", m: "Investor call · 1 month ago" }
+    ],
+    sfHistory: [
+      { d: "Jun 2026", n: "Registered for Calypso conference (prospect)" },
+      { d: "—", n: "No prior account history (net-new)" }
+    ],
+    pitch: "Marcus — saw the private credit launch. As you scale into less-liquid assets, a single cross-asset risk and post-trade layer avoids the fragmentation you flagged. Can I show you how peers structure that?"
   }
 ];
 
 const listEl = document.getElementById('list');
 const detailEl = document.getElementById('detail');
-document.getElementById('tcount').textContent = TARGETS.length;
+const eventSelEl = document.getElementById('eventSelect');
+let currentEvent = 'sibos';
 
 const grad = {
   hot:  "linear-gradient(135deg,#6ee7ff,#7af0c4)",
   warm: "linear-gradient(135deg,#6ee7ff,#b794f6)",
   cool: "linear-gradient(135deg,#b794f6,#f0a6d8)"
 };
+const moodIcon = { happy: "☺", neutral: "•", risk: "!" };
 
-function renderList() {
-  TARGETS.forEach((t, i) => {
+function renderEventButtons() {
+  eventSelEl.innerHTML = Object.entries(EVENTS).map(([k, e]) => {
+    const n = TARGETS.filter(t => t.event === k).length;
+    return `<button class="ev-btn ${k === currentEvent ? 'active' : ''}" data-ev="${k}">
+      <span class="en">${e.name}</span>
+      <span class="em">${e.location} · <b>${e.attendees}</b> attendees · ${n} ranked targets</span>
+    </button>`;
+  }).join('');
+  eventSelEl.querySelectorAll('.ev-btn').forEach(b =>
+    b.addEventListener('click', () => { currentEvent = b.dataset.ev; renderAll(); }));
+}
+
+function renderAll() {
+  renderEventButtons();
+  const ev = EVENTS[currentEvent];
+  const items = TARGETS.filter(t => t.event === currentEvent).sort((a, b) => b.score - a.score);
+  document.getElementById('pillEvent').innerHTML = `Event: <b>${ev.name}</b>`;
+  document.getElementById('pillAtt').innerHTML = `Attendees: <b>${ev.attendees}</b>`;
+  document.getElementById('tcount').textContent = items.length;
+
+  listEl.innerHTML = '';
+  items.forEach((t, i) => {
     const row = document.createElement('div');
     row.className = 'row';
-    row.dataset.idx = i;
+    row.dataset.name = t.name;
     row.innerHTML = `
       <div class="rank">${i + 1}</div>
-      <div class="avatar" style="background:${grad[t.tier]}">${t.initials}</div>
+      <div class="avatar" style="background:${grad[t.tier]}">${t.initials}<span class="mood ${t.mood}">${moodIcon[t.mood]}</span></div>
       <div class="who">
         <div class="nm">${t.name}</div>
         <div class="co">${t.title} · ${t.company}</div>
@@ -390,17 +492,19 @@ function renderList() {
         <div class="val s-${t.tier}">${t.score}</div>
         <div class="bar"><i class="b-${t.tier}" style="width:${t.score}%"></i></div>
       </div>`;
-    row.addEventListener('click', () => select(i));
+    row.addEventListener('click', () => select(t.name));
     listEl.appendChild(row);
   });
+  if (items.length) select(items[0].name);
 }
 
-function select(i) {
-  document.querySelectorAll('.row').forEach(r => r.classList.toggle('active', +r.dataset.idx === i));
-  const t = TARGETS[i];
+function select(name) {
+  const t = TARGETS.find(x => x.name === name);
+  document.querySelectorAll('.row').forEach(r => r.classList.toggle('active', r.dataset.name === name));
   const statusBadge = t.status === 'customer'
     ? `<span class="badge cust">● Customer</span>`
     : `<span class="badge prospect">● Prospect</span>`;
+  const moodClass = t.mood === 'happy' ? 'happy' : (t.mood === 'risk' ? 'risk' : 'neutral');
   const products = t.products.length
     ? `<div class="chips">${t.products.map(p => `<span>${p}</span>`).join('')}</div>`
     : `<p>Not currently a customer — no products in use.</p>`;
@@ -412,6 +516,7 @@ function select(i) {
         <div class="role"><b>${t.title}</b> · ${t.company}</div>
         <div class="badges">
           ${statusBadge}
+          <span class="badge ${moodClass}">${t.mood === 'happy' ? '☺ Happy' : t.mood === 'risk' ? '⚠ At risk' : '• Neutral'}</span>
           <span class="badge">${t.segment}</span>
           <span class="badge">${t.region}</span>
         </div>
@@ -423,10 +528,7 @@ function select(i) {
     </div>
 
     <div class="blocks">
-      <div class="block full">
-        <h3>Brief</h3>
-        <p>${t.brief}</p>
-      </div>
+      <div class="block full"><h3>Brief</h3><p>${t.brief}</p></div>
 
       <div class="block">
         <h3>Company — Firmographics</h3>
@@ -441,9 +543,11 @@ function select(i) {
 
       <div class="block">
         <h3>Customer Status &amp; Products</h3>
-        <div class="badges" style="margin-bottom:.6rem">${statusBadge}</div>
+        <div class="badges" style="margin-bottom:.6rem">${statusBadge} <span class="badge ${moodClass}">${t.sentiment}</span></div>
         ${products}
-        <h3 style="margin-top:1rem">Asset Classes</h3>
+        <h3 class="sub">Product Ownership</h3>
+        <p>${t.productOwner}</p>
+        <h3 class="sub">Asset Classes</h3>
         <div class="chips">${t.assetClasses.map(a => `<span>${a}</span>`).join('')}</div>
       </div>
 
@@ -453,8 +557,18 @@ function select(i) {
       </div>
 
       <div class="block">
+        <h3>What to talk about</h3>
+        <ul class="talk">${t.talk.map(s => `<li>${s}</li>`).join('')}</ul>
+      </div>
+
+      <div class="block">
         <h3>Account Opportunity</h3>
         <p>${t.opportunities}</p>
+      </div>
+
+      <div class="block">
+        <h3>Account / Salesforce History</h3>
+        <div class="timeline">${t.sfHistory.map(h => `<div class="ti"><div class="td">${h.d}</div><div class="tn">${h.n}</div></div>`).join('')}</div>
       </div>
 
       <div class="block full">
@@ -470,8 +584,7 @@ function select(i) {
   detailEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 }
 
-renderList();
-select(0);
+renderAll();
 
 // background canvas
 (function () {
