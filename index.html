@@ -154,7 +154,8 @@
       max-height: 0; overflow: hidden; transition: max-height 0.3s ease; align-items: stretch;
     }
     .navlinks a { padding: 0.6rem 0.4rem; }
-    .topnav.open .navlinks { max-height: 80vh; }
+    .navlinks a.nav-cta { order: -1; margin-bottom: 0.5rem; text-align: center; }
+    .topnav.open .navlinks { max-height: 85vh; overflow-y: auto; }
     .nav-toggle {
       display: inline-flex; background: none; border: 1px solid var(--card-border);
       color: #fff; border-radius: 8px; padding: 0.35rem 0.6rem; font-size: 1rem; cursor: pointer;
