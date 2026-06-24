@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Event Targeting · NY AI Session</title>
+<style>
+  :root {
+    --bg: #05060d;
+    --accent: #6ee7ff;
+    --accent2: #b794f6;
+    --accent3: #7af0c4;
+    --warn: #f0a6d8;
+    --card: rgba(255,255,255,0.04);
+    --card-border: rgba(110,231,255,0.16);
+    --muted: rgba(255,255,255,0.68);
+    --muted2: rgba(255,255,255,0.45);
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--bg);
+    font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+    color: #fff;
+    line-height: 1.5;
+    overflow-x: hidden;
+  }
+  #net { position: fixed; inset: 0; display: block; z-index: 0; }
+  .vignette {
+    position: fixed; inset: 0; z-index: 1; pointer-events: none;
+    background: radial-gradient(ellipse at center, transparent 55%, rgba(0,0,0,0.78) 100%);
+  }
+
+  /* nav */
+  .topnav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 5;
+    display: flex; align-items: center; gap: 1rem;
+    padding: 0.7rem clamp(1rem, 4vw, 2rem);
+    background: rgba(5,6,13,0.7);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--card-border);
+  }
+  .topnav .brand {
+    font-weight: 700; font-size: 0.85rem; letter-spacing: 0.18em; text-transform: uppercase;
+    color: #fff; text-decoration: none; white-space: nowrap; margin-right: auto;
+  }
+  .topnav .brand span { color: var(--accent); }
+  .navlinks { display: flex; gap: 0.3rem; }
+  .navlinks a {
+    color: var(--muted); text-decoration: none; font-size: 0.8rem;
+    padding: 0.35rem 0.7rem; border-radius: 8px; white-space: nowrap;
+    transition: color 0.2s ease, background 0.2s ease;
+  }
+  .navlinks a:hover { color: #fff; background: rgba(110,231,255,0.1); }
+  .navlinks a.active { color: var(--bg); background: var(--accent); }
+
+  /* layout */
+  main { position: relative; z-index: 2; max-width: 1280px; margin: 0 auto; padding: 5.5rem 1.25rem 4rem; }
+
+  .page-head { margin-bottom: 1.6rem; }
+  .page-head .tag {
+    text-transform: uppercase; letter-spacing: 0.3em; font-size: 0.7rem;
+    color: var(--accent); margin-bottom: 0.5rem;
+  }
+  .page-head h1 {
+    font-size: clamp(1.8rem, 5vw, 2.8rem); font-weight: 800; line-height: 1.05;
+    background: linear-gradient(120deg, #fff, var(--accent) 60%, var(--accent2));
+    -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+  }
+  .event-bar {
+    display: flex; flex-wrap: wrap; gap: 0.7rem; align-items: center; margin-top: 1rem;
+  }
+  .event-pill {
+    display: inline-flex; align-items: center; gap: 0.5rem;
+    background: var(--card); border: 1px solid var(--card-border);
+    border-radius: 999px; padding: 0.5rem 1rem; font-size: 0.85rem;
+  }
+  .event-pill b { color: var(--accent3); }
+  .event-pill.live::before {
+    content: ""; width: 8px; height: 8px; border-radius: 50%;
+    background: var(--accent3); box-shadow: 0 0 10px var(--accent3);
+    animation: blink 1.6s ease-in-out infinite;
+  }
+  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:.3} }
+
+  .grid2 { display: grid; grid-template-columns: minmax(320px, 460px) 1fr; gap: 1.25rem; align-items: start; }
+  @media (max-width: 900px) { .grid2 { grid-template-columns: 1fr; } }
+
+  .panel {
+    background: var(--card); border: 1px solid var(--card-border);
+    border-radius: 18px; backdrop-filter: blur(8px);
+  }
+  .list-head {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 1rem 1.1rem 0.6rem;
+  }
+  .list-head h2 { font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.2em; color: var(--muted); }
+  .list-head .count { font-size: 0.75rem; color: var(--muted2); }
+
+  .target-list { padding: 0.4rem; display: flex; flex-direction: column; gap: 0.35rem; max-height: 72vh; overflow-y: auto; }
+  .target-list::-webkit-scrollbar { width: 8px; }
+  .target-list::-webkit-scrollbar-thumb { background: rgba(110,231,255,0.2); border-radius: 8px; }
+
+  .row {
+    display: grid; grid-template-columns: auto auto 1fr auto; gap: 0.7rem; align-items: center;
+    padding: 0.7rem 0.8rem; border-radius: 12px; cursor: pointer;
+    border: 1px solid transparent; transition: background 0.18s ease, border-color 0.18s ease;
+  }
+  .row:hover { background: rgba(110,231,255,0.06); }
+  .row.active { background: rgba(110,231,255,0.1); border-color: rgba(110,231,255,0.4); }
+  .rank { font-size: 0.8rem; color: var(--muted2); width: 1.4rem; text-align: center; font-weight: 700; }
+  .avatar {
+    width: 42px; height: 42px; border-radius: 50%; display: grid; place-items: center;
+    font-weight: 700; font-size: 0.95rem; color: #05060d; flex: 0 0 auto;
+  }
+  .row .who { min-width: 0; }
+  .row .who .nm { font-weight: 600; font-size: 0.95rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .row .who .co { font-size: 0.8rem; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .score-chip { text-align: right; }
+  .score-chip .val { font-weight: 800; font-size: 1.05rem; }
+  .score-chip .bar { width: 60px; height: 4px; border-radius: 4px; background: rgba(255,255,255,0.12); margin-top: 4px; overflow: hidden; }
+  .score-chip .bar i { display: block; height: 100%; border-radius: 4px; }
+
+  .s-hot { color: var(--accent3); } .b-hot { background: var(--accent3); }
+  .s-warm { color: var(--accent); } .b-warm { background: var(--accent); }
+  .s-cool { color: var(--accent2); } .b-cool { background: var(--accent2); }
+
+  /* detail */
+  .detail { padding: 1.4rem; min-height: 60vh; }
+  .detail .dhead { display: flex; gap: 1.1rem; align-items: center; flex-wrap: wrap; }
+  .detail .avatar-lg {
+    width: 84px; height: 84px; border-radius: 20px; display: grid; place-items: center;
+    font-weight: 800; font-size: 1.8rem; color: #05060d; flex: 0 0 auto;
+  }
+  .detail h2 { font-size: 1.5rem; font-weight: 800; }
+  .detail .role { color: var(--muted); font-size: 0.95rem; }
+  .detail .role b { color: #fff; font-weight: 600; }
+  .badges { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: 0.6rem; }
+  .badge {
+    font-size: 0.72rem; padding: 0.25rem 0.6rem; border-radius: 999px;
+    border: 1px solid var(--card-border); color: var(--muted);
+  }
+  .badge.cust { color: var(--accent3); border-color: rgba(122,240,196,0.4); background: rgba(122,240,196,0.08); }
+  .badge.prospect { color: var(--accent2); border-color: rgba(183,148,246,0.4); background: rgba(183,148,246,0.08); }
+  .badge.score { color: #05060d; font-weight: 700; }
+
+  .dscore { margin-left: auto; text-align: center; }
+  .dscore .num { font-size: 2.4rem; font-weight: 800; line-height: 1; }
+  .dscore .lbl { font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.18em; color: var(--muted2); }
+
+  .blocks { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 1.4rem; }
+  @media (max-width: 620px) { .blocks { grid-template-columns: 1fr; } }
+  .block {
+    background: rgba(255,255,255,0.03); border: 1px solid var(--card-border);
+    border-radius: 14px; padding: 1rem 1.1rem;
+  }
+  .block.full { grid-column: 1 / -1; }
+  .block h3 {
+    font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.2em;
+    color: var(--accent); margin-bottom: 0.7rem;
+  }
+  .block p { color: var(--muted); font-size: 0.92rem; }
+  .kv { display: grid; grid-template-columns: auto 1fr; gap: 0.3rem 0.9rem; font-size: 0.9rem; }
+  .kv dt { color: var(--muted2); }
+  .kv dd { color: #fff; text-align: right; }
+  .chips { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+  .chips span { font-size: 0.78rem; padding: 0.3rem 0.65rem; border-radius: 8px; background: rgba(110,231,255,0.08); border: 1px solid var(--card-border); color: var(--accent); }
+  .news-item { padding: 0.55rem 0; border-bottom: 1px solid rgba(255,255,255,0.07); }
+  .news-item:last-child { border-bottom: none; }
+  .news-item .nt { font-weight: 600; font-size: 0.9rem; }
+  .news-item .nm2 { font-size: 0.76rem; color: var(--muted2); margin-top: 0.15rem; }
+  .pitch {
+    background: linear-gradient(135deg, rgba(110,231,255,0.1), rgba(183,148,246,0.08));
+    border: 1px solid rgba(110,231,255,0.3);
+  }
+  .pitch p { color: #fff; font-style: italic; }
+  .signals li { list-style: none; padding: 0.3rem 0 0.3rem 1.3rem; position: relative; color: var(--muted); font-size: 0.9rem; }
+  .signals li::before { content: "▸"; color: var(--accent3); position: absolute; left: 0; }
+
+  .empty { display: grid; place-items: center; height: 50vh; color: var(--muted2); text-align: center; }
+  .disclaimer { margin-top: 1.5rem; font-size: 0.72rem; color: var(--muted2); text-align: center; }
+</style>
+</head>
+<body>
+  <canvas id="net"></canvas>
+  <div class="vignette"></div>
+
+  <nav class="topnav">
+    <a class="brand" href="index.html">NY AI <span>· Upsell</span></a>
+    <div class="navlinks">
+      <a href="index.html">Strategy</a>
+      <a href="event-targeting.html" class="active">Event Targeting</a>
+    </div>
+  </nav>
+
+  <main>
+    <div class="page-head">
+      <div class="tag">Sales Intelligence · Mockup</div>
+      <h1>Event Targeting</h1>
+      <div class="event-bar">
+        <span class="event-pill live">Live event</span>
+        <span class="event-pill">Event: <b>SIBOS 2026</b></span>
+        <span class="event-pill">Attendees: <b>3,000+</b></span>
+        <span class="event-pill">Your ranked targets: <b id="tcount">8</b></span>
+      </div>
+    </div>
+
+    <div class="grid2">
+      <!-- LIST -->
+      <div class="panel">
+        <div class="list-head">
+          <h2>Prioritised Targets</h2>
+          <span class="count">Ranked by fit score</span>
+        </div>
+        <div class="target-list" id="list"></div>
+      </div>
+
+      <!-- DETAIL -->
+      <div class="panel detail" id="detail">
+        <div class="empty">Select a target from the list to see their brief.</div>
+      </div>
+    </div>
+
+    <p class="disclaimer">Mockup — all people, companies, scores, and news shown are fictional sample data for demonstration only.</p>
+  </main>
+
+<script>
+const TARGETS = [
+  {
+    name: "Priya Nair", initials: "PN", score: 94, tier: "hot",
+    title: "Head of Treasury Technology", company: "Meridian Global Bank",
+    status: "customer", segment: "Tier 1 Bank", assets: "$1.4T total assets",
+    region: "London, UK", employees: "78,000",
+    products: ["Calypso", "Reg Reporting"],
+    assetClasses: ["Rates", "FX", "Credit"],
+    brief: "Owns the treasury tech roadmap for one of Europe's largest banks and a long-standing Calypso customer. Actively modernising collateral and liquidity systems — strong fit for a new-module conversation.",
+    company_brief: "Global universal bank; top-5 in European rates clearing. Mid-cycle on a multi-year tech transformation.",
+    signals: ["Renewal due Q3 — expansion window open", "Whitespace: collateral optimisation module", "Attended our Calypso roadmap webinar last month"],
+    news: [
+      { t: "Meridian announces £200m tech modernisation programme", m: "FinTech Times · 3 days ago" },
+      { t: "New Group CRO appointed, prioritising risk-data consolidation", m: "Reuters · 2 weeks ago" }
+    ],
+    opportunities: "Collateral optimisation + intraday liquidity module on existing Calypso footprint.",
+    pitch: "Priya — congrats on the £200m modernisation programme. Teams running your Calypso footprint are adding the collateral optimisation module to cut funding costs ~15%. Worth 15 minutes while you're scoping the roadmap?"
+  },
+  {
+    name: "Marcus Lindqvist", initials: "ML", score: 89, tier: "hot",
+    title: "Chief Operating Officer", company: "Nordström Asset Management",
+    status: "prospect", segment: "Asset Manager", assets: "$320B AUM",
+    region: "Stockholm, SE", employees: "1,200",
+    products: [],
+    assetClasses: ["Equities", "Fixed Income"],
+    brief: "COO at a fast-growing Nordic asset manager with no current relationship. Public comments suggest frustration with fragmented post-trade systems — a clean greenfield prospect.",
+    company_brief: "Top-3 Nordic asset manager, expanding into private credit. Known for early tech adoption.",
+    signals: ["Net-new logo — no existing footprint", "Public RFP signals for an OMS/risk platform", "Two of his directors are also attending SIBOS"],
+    news: [
+      { t: "Nordström launches $5B private credit fund", m: "Bloomberg · 1 week ago" },
+      { t: "COO cites 'operational scaling' as 2026 priority in earnings call", m: "Investor call · 1 month ago" }
+    ],
+    opportunities: "Greenfield Calypso platform for cross-asset risk + post-trade consolidation.",
+    pitch: "Marcus — saw the private credit launch. As you scale into less-liquid assets, a single cross-asset risk and post-trade layer avoids the fragmentation you flagged. Can I show you how peers structure that?"
+  },
+  {
+    name: "Sofia Reyes", initials: "SR", score: 87, tier: "hot",
+    title: "Director, Regulatory Reporting", company: "Banco Atlántico",
+    status: "customer", segment: "Tier 2 Bank", assets: "$280B total assets",
+    region: "Madrid, ES", employees: "24,000",
+    products: ["Reg Reporting"],
+    assetClasses: ["Rates", "Credit"],
+    brief: "Reg Reporting customer facing a wave of new Basel capital requirements. High-confidence upsell trigger — the new module maps directly to a regulatory deadline she owns.",
+    company_brief: "Spanish commercial bank with growing LatAm operations and rising cross-border reporting obligations.",
+    signals: ["TRIGGER: Basel capital requirements (uses Reg Reporting)", "Compliance deadline in 9 months", "Opened our last 3 product emails"],
+    news: [
+      { t: "EU finalises Basel III endgame timeline", m: "Regulatory Brief · 5 days ago" },
+      { t: "Banco Atlántico expands Mexico City operations", m: "Financial Times · 3 weeks ago" }
+    ],
+    opportunities: "Basel Capital Requirements module as an add-on to existing Reg Reporting.",
+    pitch: "Sofia — with the Basel endgame timeline now fixed, our Capital Requirements module plugs straight into your Reg Reporting setup, so you hit the deadline without a new integration. Shall we map it to your milestones?"
+  },
+  {
+    name: "James Okafor", initials: "JO", score: 82, tier: "warm",
+    title: "Head of Markets Risk", company: "Cardinal Securities",
+    status: "prospect", segment: "Broker-Dealer", assets: "$95B balance sheet",
+    region: "New York, US", employees: "6,500",
+    products: [],
+    assetClasses: ["Equities", "Derivatives"],
+    brief: "Runs markets risk at a mid-size US broker-dealer. Evaluating real-time risk platforms after a volatility event last quarter. Warm prospect with an active pain point.",
+    company_brief: "US broker-dealer with a strong equity derivatives franchise; investing in risk infrastructure post-incident.",
+    signals: ["Active evaluation of real-time risk tooling", "Recent margin-call incident reported in press", "Connected to two of our existing champions on LinkedIn"],
+    news: [
+      { t: "Cardinal reviews risk controls after Q1 volatility losses", m: "WSJ · 2 weeks ago" },
+      { t: "New Head of Technology hired from a Tier 1 bank", m: "eFinancialCareers · 1 month ago" }
+    ],
+    opportunities: "Real-time cross-asset risk engine; potential displacement of legacy in-house system.",
+    pitch: "James — after Q1, real-time intraday risk is clearly top of mind. Firms your size are replacing overnight batch with our streaming risk engine to catch exposures before they become margin calls. Worth a look?"
+  },
+  {
+    name: "Yuki Tanaka", initials: "YT", score: 78, tier: "warm",
+    title: "Chief Technology Officer", company: "Sakura Capital Partners",
+    status: "customer", segment: "Asset Manager", assets: "$140B AUM",
+    region: "Tokyo, JP", employees: "900",
+    products: ["Calypso"],
+    assetClasses: ["Fixed Income", "FX"],
+    brief: "CTO and Calypso customer in APAC. Healthy account with strong usage; good candidate for cross-sell into reg reporting as Japanese disclosure rules tighten.",
+    company_brief: "Japanese asset manager expanding global fixed-income mandates; modern, cloud-first tech stack.",
+    signals: ["High product usage / healthy account", "Whitespace: reg reporting (not yet a customer)", "Upcoming APAC disclosure rule changes"],
+    news: [
+      { t: "Japan FSA tightens derivatives disclosure rules", m: "Nikkei · 1 week ago" },
+      { t: "Sakura wins $12B global bond mandate", m: "Asian Investor · 1 month ago" }
+    ],
+    opportunities: "Cross-sell Reg Reporting onto existing Calypso footprint ahead of FSA changes.",
+    pitch: "Yuki-san — with the new FSA disclosure rules landing, adding our Reg Reporting onto your existing Calypso setup keeps it all in one stack. Could I walk your team through the APAC coverage?"
+  },
+  {
+    name: "Elena Volkov", initials: "EV", score: 74, tier: "warm",
+    title: "VP, Collateral Management", company: "Helvetia Custody",
+    status: "prospect", segment: "Custodian", assets: "$2.1T assets under custody",
+    region: "Zurich, CH", employees: "11,000",
+    products: [],
+    assetClasses: ["Collateral", "Securities Lending"],
+    brief: "Leads collateral management at a major custodian. Prospect with a clear efficiency mandate; collateral optimisation is a natural entry point.",
+    company_brief: "Swiss custodian and securities-services provider; conservative buyer, long sales cycles, high lifetime value.",
+    signals: ["Efficiency / cost-reduction mandate", "Whitespace: collateral optimisation", "First touch — early-stage relationship"],
+    news: [
+      { t: "Helvetia consolidates securities-services division", m: "Finews · 2 weeks ago" },
+      { t: "Industry shift to T+1 settlement pressures collateral ops", m: "Global Custodian · 1 month ago" }
+    ],
+    opportunities: "Collateral optimisation platform; long-cycle but high-value custodian deal.",
+    pitch: "Elena — with T+1 squeezing collateral timelines, optimisation is where custodians are finding the biggest efficiency wins. I'd value 15 minutes to understand your current workflow and share what peers are doing."
+  },
+  {
+    name: "David Chen", initials: "DC", score: 70, tier: "warm",
+    title: "Head of Trading Operations", company: "Pacific Union Bank",
+    status: "customer", segment: "Tier 2 Bank", assets: "$190B total assets",
+    region: "Singapore, SG", employees: "15,000",
+    products: ["Calypso", "Reg Reporting"],
+    assetClasses: ["FX", "Rates"],
+    brief: "Multi-product customer (Calypso + Reg Reporting). Account is stable; opportunity is depth — additional asset-class coverage and seats rather than new modules.",
+    company_brief: "Pan-Asian bank with a strong FX franchise; steady, relationship-driven buyer.",
+    signals: ["Existing multi-product customer", "Expansion: add commodities asset-class coverage", "NPS strong — good reference candidate"],
+    news: [
+      { t: "Pacific Union grows commodities trading desk", m: "Straits Times · 2 weeks ago" },
+      { t: "Bank reports record FX volumes in Q1", m: "Reuters · 1 month ago" }
+    ],
+    opportunities: "Add commodities coverage + additional desk seats on existing Calypso.",
+    pitch: "David — congrats on the commodities desk build-out. We can extend your existing Calypso setup to cover commodities so the new desk runs on day one. Want me to scope the seats with your team?"
+  },
+  {
+    name: "Aisha Rahman", initials: "AR", score: 66, tier: "cool",
+    title: "Chief Data Officer", company: "Gulf Investment Authority",
+    status: "prospect", segment: "Sovereign Wealth Fund", assets: "$650B AUM",
+    region: "Abu Dhabi, AE", employees: "1,800",
+    products: [],
+    assetClasses: ["Multi-asset", "Private Markets"],
+    brief: "CDO at a sovereign wealth fund. Early-stage prospect — relationship-building priority. Long horizon, but a marquee logo with significant whitespace.",
+    company_brief: "Sovereign wealth fund diversifying into private markets and alternatives; data-governance focused.",
+    signals: ["Marquee logo — strategic relationship", "Early stage — nurture, not pitch", "Data-consolidation initiative underway"],
+    news: [
+      { t: "GIA commits $40B to private markets over 5 years", m: "Bloomberg · 1 week ago" },
+      { t: "Fund builds out in-house data platform", m: "Sovereign Wealth News · 1 month ago" }
+    ],
+    opportunities: "Long-horizon multi-asset risk & data platform; relationship-led nurture.",
+    pitch: "Aisha — I'd love to simply connect at SIBOS, no pitch. As you build out the data platform and push into private markets, I can share how other large allocators approach multi-asset risk data. Coffee while you're here?"
+  }
+];
+
+const listEl = document.getElementById('list');
+const detailEl = document.getElementById('detail');
+document.getElementById('tcount').textContent = TARGETS.length;
+
+const grad = {
+  hot:  "linear-gradient(135deg,#6ee7ff,#7af0c4)",
+  warm: "linear-gradient(135deg,#6ee7ff,#b794f6)",
+  cool: "linear-gradient(135deg,#b794f6,#f0a6d8)"
+};
+
+function renderList() {
+  TARGETS.forEach((t, i) => {
+    const row = document.createElement('div');
+    row.className = 'row';
+    row.dataset.idx = i;
+    row.innerHTML = `
+      <div class="rank">${i + 1}</div>
+      <div class="avatar" style="background:${grad[t.tier]}">${t.initials}</div>
+      <div class="who">
+        <div class="nm">${t.name}</div>
+        <div class="co">${t.title} · ${t.company}</div>
+      </div>
+      <div class="score-chip">
+        <div class="val s-${t.tier}">${t.score}</div>
+        <div class="bar"><i class="b-${t.tier}" style="width:${t.score}%"></i></div>
+      </div>`;
+    row.addEventListener('click', () => select(i));
+    listEl.appendChild(row);
+  });
+}
+
+function select(i) {
+  document.querySelectorAll('.row').forEach(r => r.classList.toggle('active', +r.dataset.idx === i));
+  const t = TARGETS[i];
+  const statusBadge = t.status === 'customer'
+    ? `<span class="badge cust">● Customer</span>`
+    : `<span class="badge prospect">● Prospect</span>`;
+  const products = t.products.length
+    ? `<div class="chips">${t.products.map(p => `<span>${p}</span>`).join('')}</div>`
+    : `<p>Not currently a customer — no products in use.</p>`;
+  detailEl.innerHTML = `
+    <div class="dhead">
+      <div class="avatar-lg" style="background:${grad[t.tier]}">${t.initials}</div>
+      <div>
+        <h2>${t.name}</h2>
+        <div class="role"><b>${t.title}</b> · ${t.company}</div>
+        <div class="badges">
+          ${statusBadge}
+          <span class="badge">${t.segment}</span>
+          <span class="badge">${t.region}</span>
+        </div>
+      </div>
+      <div class="dscore">
+        <div class="num s-${t.tier}">${t.score}</div>
+        <div class="lbl">Fit score</div>
+      </div>
+    </div>
+
+    <div class="blocks">
+      <div class="block full">
+        <h3>Brief</h3>
+        <p>${t.brief}</p>
+      </div>
+
+      <div class="block">
+        <h3>Company — Firmographics</h3>
+        <dl class="kv">
+          <dt>Segment</dt><dd>${t.segment}</dd>
+          <dt>Size</dt><dd>${t.assets}</dd>
+          <dt>Employees</dt><dd>${t.employees}</dd>
+          <dt>HQ</dt><dd>${t.region}</dd>
+        </dl>
+        <p style="margin-top:.7rem">${t.company_brief}</p>
+      </div>
+
+      <div class="block">
+        <h3>Customer Status &amp; Products</h3>
+        <div class="badges" style="margin-bottom:.6rem">${statusBadge}</div>
+        ${products}
+        <h3 style="margin-top:1rem">Asset Classes</h3>
+        <div class="chips">${t.assetClasses.map(a => `<span>${a}</span>`).join('')}</div>
+      </div>
+
+      <div class="block">
+        <h3>Why they're prioritised</h3>
+        <ul class="signals">${t.signals.map(s => `<li>${s}</li>`).join('')}</ul>
+      </div>
+
+      <div class="block">
+        <h3>Account Opportunity</h3>
+        <p>${t.opportunities}</p>
+      </div>
+
+      <div class="block full">
+        <h3>Public News</h3>
+        ${t.news.map(n => `<div class="news-item"><div class="nt">${n.t}</div><div class="nm2">${n.m}</div></div>`).join('')}
+      </div>
+
+      <div class="block full pitch">
+        <h3>Recommended Pitch</h3>
+        <p>“${t.pitch}”</p>
+      </div>
+    </div>`;
+  detailEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+renderList();
+select(0);
+
+// background canvas
+(function () {
+  const canvas = document.getElementById('net');
+  const ctx = canvas.getContext('2d');
+  let w, h, nodes, mouse = { x: -9999, y: -9999 };
+  const COLORS = ['#6ee7ff', '#b794f6', '#7af0c4'];
+  function resize() {
+    w = canvas.width = window.innerWidth * devicePixelRatio;
+    h = canvas.height = window.innerHeight * devicePixelRatio;
+    canvas.style.width = window.innerWidth + 'px';
+    canvas.style.height = window.innerHeight + 'px';
+    initNodes();
+  }
+  function initNodes() {
+    const count = Math.min(110, Math.floor((w * h) / (devicePixelRatio * 18000)));
+    nodes = Array.from({ length: count }, () => ({
+      x: Math.random() * w, y: Math.random() * h,
+      vx: (Math.random() - 0.5) * 0.3 * devicePixelRatio,
+      vy: (Math.random() - 0.5) * 0.3 * devicePixelRatio,
+      r: (Math.random() * 1.4 + 0.5) * devicePixelRatio,
+      c: COLORS[(Math.random() * COLORS.length) | 0]
+    }));
+  }
+  function step() {
+    ctx.clearRect(0, 0, w, h);
+    const linkDist = 120 * devicePixelRatio;
+    for (let i = 0; i < nodes.length; i++) {
+      const n = nodes[i];
+      n.x += n.vx; n.y += n.vy;
+      if (n.x < 0 || n.x > w) n.vx *= -1;
+      if (n.y < 0 || n.y > h) n.vy *= -1;
+      const mdx = mouse.x - n.x, mdy = mouse.y - n.y, md = Math.hypot(mdx, mdy);
+      if (md < 180 * devicePixelRatio && md > 0) { n.x += (mdx / md) * 0.5; n.y += (mdy / md) * 0.5; }
+      for (let j = i + 1; j < nodes.length; j++) {
+        const m = nodes[j], dx = n.x - m.x, dy = n.y - m.y, d = Math.hypot(dx, dy);
+        if (d < linkDist) {
+          ctx.strokeStyle = n.c; ctx.globalAlpha = (1 - d / linkDist) * 0.28;
+          ctx.lineWidth = devicePixelRatio * 0.5;
+          ctx.beginPath(); ctx.moveTo(n.x, n.y); ctx.lineTo(m.x, m.y); ctx.stroke();
+        }
+      }
+    }
+    ctx.globalAlpha = 1;
+    for (const n of nodes) {
+      ctx.beginPath(); ctx.fillStyle = n.c; ctx.shadowColor = n.c; ctx.shadowBlur = 6 * devicePixelRatio;
+      ctx.arc(n.x, n.y, n.r, 0, Math.PI * 2); ctx.fill();
+    }
+    ctx.shadowBlur = 0;
+    requestAnimationFrame(step);
+  }
+  window.addEventListener('resize', resize);
+  window.addEventListener('mousemove', e => { mouse.x = e.clientX * devicePixelRatio; mouse.y = e.clientY * devicePixelRatio; });
+  window.addEventListener('mouseout', () => { mouse.x = -9999; mouse.y = -9999; });
+  resize(); step();
+})();
+</script>
+</body>
+</html>
